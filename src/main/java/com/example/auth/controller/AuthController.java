@@ -49,6 +49,7 @@ public class AuthController {
         final JwtResponse token = authService.login(authRequest);
         Cookie cookie = refreshCookie(token.censor());
         response.addCookie(cookie);
+        System.out.println(new ResponseEntity<>(authService.jsonify(token), HttpStatus.OK).toString());
         return new ResponseEntity<>(authService.jsonify(token), HttpStatus.OK);
     }
 

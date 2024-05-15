@@ -25,6 +25,18 @@ public class TestController {
         this.gson = gson;
     }
 
+    @GetMapping("/cors")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public String testgetcors() {
+        return "test get cors";
+    }
+    @PostMapping("/cors")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public String testpostcors() {
+        return "test post cors";
+    }
 
     @PostMapping("/putRedis/{username}")
     public ResponseEntity<String> testRedisput(

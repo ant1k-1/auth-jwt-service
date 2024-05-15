@@ -34,8 +34,6 @@ public class JwtFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain fc)
             throws IOException, ServletException, NoSuchElementException {
-//        System.out.println("doFilter : " + ((HttpServletRequest)request).getRequestURI());
-
         final String accessToken = getAccessTokenFromRequest((HttpServletRequest) request);
         final String refreshToken = getRefreshTokenFromRequest((HttpServletRequest) request);
 
