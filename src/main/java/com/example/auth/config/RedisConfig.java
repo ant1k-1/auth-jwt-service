@@ -18,8 +18,8 @@ public class RedisConfig {
     @Value("${redis.port}")
     private int redisPort;
 
-    @Value("${redis.password}")
-    private String redisPassword;
+//    @Value("${redis.password}")
+//    private String redisPassword;
 
     @Bean
     public JedisConnectionFactory connectionFactory() {
