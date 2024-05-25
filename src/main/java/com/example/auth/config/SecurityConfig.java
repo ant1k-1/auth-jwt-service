@@ -75,6 +75,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of("POST", "OPTIONS", "GET", "DELETE", "PUT"));
         config.setAllowedHeaders(List.of("X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
+        config.setExposedHeaders(List.of("Set-Cookie"));
         source.registerCorsConfiguration("/**", config);
         return source;
     }
