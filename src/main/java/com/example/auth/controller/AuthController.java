@@ -4,7 +4,9 @@ import com.example.auth.jwt.JwtRequest;
 import com.example.auth.jwt.JwtResponse;
 import com.example.auth.service.AuthService;
 import com.example.auth.service.UserService;
-import jakarta.servlet.http.Cookie;
+//import jakarta.servlet.http.Cookie;
+//import org.springframework.boot.web.server.Cookie;
+import org.springframework.http.ResponseCookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +49,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody JwtRequest authRequest, HttpServletResponse response) {
         final JwtResponse token = authService.login(authRequest);
-        Cookie cookie = refreshCookie(token.censor());
-        response.addCookie(cookie);
-        return new ResponseEntity<>(authService.jsonify(token), HttpStatus.OK);
+        ResponseCookie cookie = refreshCookie(token.censor());
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(authService.jsonify(token));
     }
 
     @PostMapping("/token")
@@ -57,11 +58,10 @@ public class AuthController {
         try {
             final JwtResponse token = authService.getAccessToken(getRefreshFromCookie(request));
 //            System.out.println(token);
-            Cookie cookie = refreshCookie(token.censor());
-            response.addCookie(cookie);
+            ResponseCookie cookie = refreshCookie(token.censor());
 //            System.out.println("/token");
 //            System.out.println(cookie);
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
 //            response.sendRedirect("/api/auth/login");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -72,9 +72,8 @@ public class AuthController {
     public ResponseEntity<JwtResponse> getNewRefreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             final JwtResponse token = authService.refresh(getRefreshFromCookie(request));
-            Cookie cookie = refreshCookie(token.censor());
-            response.addCookie(cookie);
-            return ResponseEntity.ok(token);
+            ResponseCookie cookie = refreshCookie(token.censor());
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
 //            response.sendRedirect("/api/auth/login");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -94,9 +93,8 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         try {
             final JwtResponse token = authService.logout(getRefreshFromCookie(request), false);
-            Cookie cookie = refreshCookie(null);
-            response.addCookie(cookie);
-            return ResponseEntity.ok(token);
+            ResponseCookie cookie = refreshCookie(null);
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -108,12 +106,18 @@ public class AuthController {
                 .findFirst().orElseThrow().getValue();
     }
 
-    private Cookie refreshCookie(String refreshToken) {
-        Cookie cookie = new Cookie("refresh", refreshToken);
-        cookie.setPath("/api/auth/token");
-        cookie.setSecure(cookieSecure);
-        cookie.setMaxAge(cookieMaxAge);
-        cookie.setHttpOnly(cookieHttpOnly);
-        return cookie;
+    private ResponseCookie refreshCookie(String refreshToken) {
+//        Cookie cookie = new Cookie("refresh", refreshToken);
+        //        cookie.setPath("/api/auth/token");
+//        cookie.setSecure(cookieSecure);
+//        cookie.setMaxAge(cookieMaxAge);
+//        cookie.setHttpOnly(cookieHttpOnly);
+        return ResponseCookie.from("refresh", refreshToken)
+                .path("/api/auth/token")
+                .secure(cookieSecure)
+                .maxAge(cookieMaxAge)
+                .httpOnly(cookieHttpOnly)
+                .sameSite("None")
+                .build();
     }
 }
