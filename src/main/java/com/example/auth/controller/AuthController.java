@@ -60,7 +60,7 @@ public class AuthController {
             response.addCookie(cookie);
             return ResponseEntity.ok(token);
         } catch (NoSuchElementException e) {
-            response.sendRedirect("/api/auth/login");
+//            response.sendRedirect("/api/auth/login");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -73,7 +73,7 @@ public class AuthController {
             response.addCookie(cookie);
             return ResponseEntity.ok(token);
         } catch (NoSuchElementException e) {
-            response.sendRedirect("/api/auth/login");
+//            response.sendRedirect("/api/auth/login");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
