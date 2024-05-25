@@ -56,8 +56,11 @@ public class AuthController {
     public ResponseEntity<?> getNewAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             final JwtResponse token = authService.getAccessToken(getRefreshFromCookie(request));
+//            System.out.println(token);
             Cookie cookie = refreshCookie(token.censor());
             response.addCookie(cookie);
+//            System.out.println("/token");
+//            System.out.println(cookie);
             return ResponseEntity.ok(token);
         } catch (NoSuchElementException e) {
 //            response.sendRedirect("/api/auth/login");
