@@ -65,7 +65,9 @@ public class SecurityConfig {
     CorsConfigurationSource customCorsConfigSource() {
         List<String> allowedOrigins = List.of(
                 "http://localhost:5173",
-                "https://wallpapers-client.onrender.com"
+                "https://wallpapers-client.onrender.com",
+                "localhost:5173",
+                "wallpapers-client.onrender.com"
         );
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
