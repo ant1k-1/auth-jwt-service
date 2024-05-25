@@ -63,11 +63,14 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource customCorsConfigSource() {
+        List<String> allowedOrigins = List.of(
+                "http://localhost:5173",
+                "https://wallpapers-client.onrender.com"
+        );
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-//        config.addAllowedOrigin("http://localhost:5173");
-        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of("POST", "OPTIONS", "GET", "DELETE", "PUT"));
         config.setAllowedHeaders(List.of("X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
         source.registerCorsConfiguration("/**", config);
