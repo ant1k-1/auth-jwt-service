@@ -58,7 +58,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody JwtRequest authRequest, HttpServletResponse response) {
         final JwtResponse token = authService.login(authRequest);
-        ResponseCookie cookie = refreshCookie(token.censor());
+        ResponseCookie cookie = refreshCookie(token.censor(cookieHttpOnly));
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(authService.jsonify(token));
     }
 
@@ -66,7 +66,7 @@ public class AuthController {
     public ResponseEntity<?> getNewAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             final JwtResponse token = authService.getAccessToken(getRefreshFromCookie(request));
-            ResponseCookie cookie = refreshCookie(token.censor());
+            ResponseCookie cookie = refreshCookie(token.censor(cookieHttpOnly));
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -77,7 +77,7 @@ public class AuthController {
     public ResponseEntity<JwtResponse> getNewRefreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             final JwtResponse token = authService.refresh(getRefreshFromCookie(request));
-            ResponseCookie cookie = refreshCookie(token.censor());
+            ResponseCookie cookie = refreshCookie(token.censor(cookieHttpOnly));
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

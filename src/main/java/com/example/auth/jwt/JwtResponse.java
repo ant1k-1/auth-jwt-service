@@ -22,9 +22,11 @@ public class JwtResponse {
         return new JwtResponse(accessToken, refreshToken, status);
     }
 
-    public String censor() {
+    public String censor(boolean httpOnly) {
         var token = refreshToken;
-        refreshToken = "hidden";
+        if (httpOnly) {
+            refreshToken = "hidden";
+        }
         return token;
     }
 
