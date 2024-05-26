@@ -30,6 +30,7 @@ public class AuthController {
     private final boolean cookieHttpOnly;
     private final String cookieSameSite;
     private final String cookiePath;
+    private final String cookieDomain;
     private final UserService userService;
 
     @Autowired
@@ -40,6 +41,7 @@ public class AuthController {
             @Value("${cookie.httponly}") boolean cookieHttpOnly,
             @Value("${cookie.same.site}") String cookieSameSite,
             @Value("${cookie.path}") String cookiePath,
+            @Value("${cookie.domain}") String cookieDomain,
             UserService userService
     ) {
         this.authService = authService;
@@ -49,6 +51,7 @@ public class AuthController {
         this.userService = userService;
         this.cookieSameSite = cookieSameSite;
         this.cookiePath = cookiePath;
+        this.cookieDomain = cookieDomain;
     }
 
     //TODO: добавить чек, что уже залогинен, и добавить чек фингерпринта браузера, юзер агента мб
@@ -114,6 +117,7 @@ public class AuthController {
                 .maxAge(cookieMaxAge)
                 .httpOnly(cookieHttpOnly)
                 .sameSite(cookieSameSite)
+                .domain(cookieDomain)
                 .build();
     }
 }
