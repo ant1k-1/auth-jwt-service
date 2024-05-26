@@ -28,6 +28,8 @@ public class AuthController {
     private final boolean cookieSecure;
     private final int cookieMaxAge;
     private final boolean cookieHttpOnly;
+    private final String cookieSameSite;
+    private final String cookiePath;
     private final UserService userService;
 
     @Autowired
@@ -36,6 +38,8 @@ public class AuthController {
             @Value("${cookie.secure}") boolean cookieSecure,
             @Value("${cookie.max.age}") int cookieMaxAge,
             @Value("${cookie.httponly}") boolean cookieHttpOnly,
+            @Value("${cookie.same.site}") String cookieSameSite,
+            @Value("${cookie.path}") String cookiePath,
             UserService userService
     ) {
         this.authService = authService;
@@ -43,6 +47,8 @@ public class AuthController {
         this.cookieMaxAge = cookieMaxAge;
         this.cookieHttpOnly = cookieHttpOnly;
         this.userService = userService;
+        this.cookieSameSite = cookieSameSite;
+        this.cookiePath = cookiePath;
     }
 
     //TODO: добавить чек, что уже залогинен, и добавить чек фингерпринта браузера, юзер агента мб
@@ -57,13 +63,9 @@ public class AuthController {
     public ResponseEntity<?> getNewAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             final JwtResponse token = authService.getAccessToken(getRefreshFromCookie(request));
-//            System.out.println(token);
             ResponseCookie cookie = refreshCookie(token.censor());
-//            System.out.println("/token");
-//            System.out.println(cookie);
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
-//            response.sendRedirect("/api/auth/login");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -75,7 +77,6 @@ public class AuthController {
             ResponseCookie cookie = refreshCookie(token.censor());
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
-//            response.sendRedirect("/api/auth/login");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -107,17 +108,12 @@ public class AuthController {
     }
 
     private ResponseCookie refreshCookie(String refreshToken) {
-//        Cookie cookie = new Cookie("refresh", refreshToken);
-        //        cookie.setPath("/api/auth/token");
-//        cookie.setSecure(cookieSecure);
-//        cookie.setMaxAge(cookieMaxAge);
-//        cookie.setHttpOnly(cookieHttpOnly);
         return ResponseCookie.from("refresh", refreshToken)
-                .path("/api/auth/token")
+                .path(cookiePath)
                 .secure(cookieSecure)
                 .maxAge(cookieMaxAge)
                 .httpOnly(cookieHttpOnly)
-                .sameSite("None")
+                .sameSite(cookieSameSite)
                 .build();
     }
 }

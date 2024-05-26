@@ -27,4 +27,14 @@ public class JwtResponse {
         refreshToken = "hidden";
         return token;
     }
+
+    @Override
+    public String toString() {
+        return "JwtResponse{" +
+                "type='" + type + '\'' +
+                ", accessToken='" + accessToken + '\'' +
+                ", refreshToken='" + refreshToken + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }

@@ -36,13 +36,14 @@ public class JwtFilter extends GenericFilterBean {
             throws IOException, ServletException, NoSuchElementException {
         final String accessToken = getAccessTokenFromRequest((HttpServletRequest) request);
         final String refreshToken = getRefreshTokenFromRequest((HttpServletRequest) request);
-//        if (refreshToken != null
-//                && jwtProvider.validateRefreshToken(refreshToken)
-//                && accessToken == null
-//                && ((HttpServletRequest) request).getRequestURI().contains("api/auth/token")
-//        ) {
-//            fc.doFilter(request, response);
-//        }
+        if (refreshToken != null
+                && jwtProvider.validateRefreshToken(refreshToken)
+                && accessToken == null
+                && ( ((HttpServletRequest) request).getRequestURI().contains("api/auth/token")
+                || ((HttpServletRequest) request).getRequestURI().contains("/api/auth/logout") )
+        ) {
+//            System.out.println("Go api/auth/token");лютый костылище
+        } else
         if (accessToken != null && refreshToken != null) {
             if (jwtProvider.isExpiredAccessToken(accessToken) || jwtProvider.isExpiredRefreshToken(refreshToken)) {
                 authenticationEntryPoint.commence(

@@ -122,6 +122,12 @@ public class AuthService {
             }
             return JwtResponse.makeInvalid(AuthStatus.SESSION_DELETED);
         }
+        if (jwtProvider.isExpiredRefreshToken(refreshToken)) {
+            final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
+            final String username = claims.getSubject();
+            sessionService.expireAllSessions(username);
+        }
+
 
         throw new AuthException(
                 AuthStatus.TOKEN_INVALID,
