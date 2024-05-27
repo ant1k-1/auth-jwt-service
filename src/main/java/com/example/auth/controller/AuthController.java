@@ -104,9 +104,16 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response,
+                                    @RequestBody(required = false) Optional<RefreshToken> refreshToken) {
         try {
-            final JwtResponse token = authService.logout(getRefreshFromCookie(request), false);
+            final JwtResponse token;
+            if (cookieHttpOnly) {
+                token = authService.logout(getRefreshFromCookie(request), false);
+            } else {
+                var temp = refreshToken.isPresent() ? refreshToken.get().getRefreshToken() : "qwerty";
+                token = authService.logout(temp, false);
+            }
             ResponseCookie cookie = refreshCookie(null);
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
