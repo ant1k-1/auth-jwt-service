@@ -13,6 +13,8 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -25,11 +27,20 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 @Component
-@RequiredArgsConstructor
 public class JwtFilter extends GenericFilterBean {
     private static final String AUTHORIZATION = "Authorization";
     private final JwtProvider jwtProvider;
     private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final boolean cookieHttpOnly;
+
+    @Autowired
+    public JwtFilter(JwtProvider jwtProvider,
+                     AuthenticationEntryPoint authenticationEntryPoint,
+                     @Value("${cookie.httponly}") boolean cookieHttpOnly) {
+        this.jwtProvider = jwtProvider;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.cookieHttpOnly = cookieHttpOnly;
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain fc)
@@ -37,13 +48,19 @@ public class JwtFilter extends GenericFilterBean {
         final String accessToken = getAccessTokenFromRequest((HttpServletRequest) request);
         final String refreshToken = getRefreshTokenFromRequest((HttpServletRequest) request);
 //        System.out.println(refreshToken);
-        if (refreshToken != null
+        if (cookieHttpOnly
+                && refreshToken != null
                 && jwtProvider.validateRefreshToken(refreshToken)
                 && accessToken == null
                 && ( ((HttpServletRequest) request).getRequestURI().contains("api/auth/token")
                 || ((HttpServletRequest) request).getRequestURI().contains("/api/auth/logout") )
         ) {
 //            System.out.println("Go api/auth/token");лютый костылище
+        } else if (!cookieHttpOnly
+                && ( ((HttpServletRequest) request).getRequestURI().contains("api/auth/token")
+                || ((HttpServletRequest) request).getRequestURI().contains("/api/auth/logout") )
+        ) {
+            //пропускаем костыльный рефреш токен
         } else
         if (accessToken != null && refreshToken != null) {
             if (jwtProvider.isExpiredAccessToken(accessToken) || jwtProvider.isExpiredRefreshToken(refreshToken)) {

@@ -136,7 +136,7 @@ public class AuthService {
         );
     }
 
-    public JwtResponse getAccessToken(@NonNull String refreshToken) {
+    public JwtResponse getRefreshToken(@NonNull String refreshToken) {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
             final String username = claims.getSubject();

@@ -2,6 +2,7 @@ package com.example.auth.controller;
 
 import com.example.auth.jwt.JwtRequest;
 import com.example.auth.jwt.JwtResponse;
+import com.example.auth.pojo.RefreshToken;
 import com.example.auth.service.AuthService;
 import com.example.auth.service.UserService;
 //import jakarta.servlet.http.Cookie;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RequestMapping("/api/auth")
 @RestController
@@ -63,9 +65,17 @@ public class AuthController {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<?> getNewAccessToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> getNewAccessToken(HttpServletRequest request, HttpServletResponse response,
+                                               @RequestBody(required = false) Optional<RefreshToken> refreshToken
+    ) throws IOException {
         try {
-            final JwtResponse token = authService.getAccessToken(getRefreshFromCookie(request));
+            final JwtResponse token;
+            if (cookieHttpOnly) {
+                token = authService.getRefreshToken(getRefreshFromCookie(request));
+            } else {
+                var temp = refreshToken.isPresent() ? refreshToken.get().getRefreshToken() : "qwerty";
+                token = authService.getRefreshToken(temp);
+            }
             ResponseCookie cookie = refreshCookie(token.censor(cookieHttpOnly));
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
         } catch (NoSuchElementException e) {
@@ -73,16 +83,16 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<JwtResponse> getNewRefreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        try {
-            final JwtResponse token = authService.refresh(getRefreshFromCookie(request));
-            ResponseCookie cookie = refreshCookie(token.censor(cookieHttpOnly));
-            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
+//    @PostMapping("/refresh")
+//    public ResponseEntity<JwtResponse> getNewRefreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        try {
+//            final JwtResponse token = authService.refresh(getRefreshFromCookie(request));
+//            ResponseCookie cookie = refreshCookie(token.censor(cookieHttpOnly));
+//            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(token);
+//        } catch (NoSuchElementException e) {
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody JwtRequest authRequest) {
