@@ -11,7 +11,7 @@ public class ErrorMessage {
     private String timestamp;
     private Integer status;
     private String error;
-    private String message;
+    private Object message;
     private String path;
 
     public ErrorMessage(Integer status, String error, String path, String message) {
@@ -27,7 +27,7 @@ public class ErrorMessage {
         this.timestamp = LocalDateTime.now().toString();
     }
 
-    public ErrorMessage(Integer status, String error, String message) {
+    public ErrorMessage(Integer status, String error, Object message) {
         this.status = status;
         this.error = error;
         this.message = message;

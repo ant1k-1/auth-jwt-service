@@ -3,6 +3,7 @@ package com.example.auth.controller;
 import com.example.auth.jwt.JwtRequest;
 import com.example.auth.jwt.JwtResponse;
 import com.example.auth.pojo.RefreshToken;
+import com.example.auth.pojo.SignUpCreds;
 import com.example.auth.service.AuthService;
 import com.example.auth.service.UserService;
 //import jakarta.servlet.http.Cookie;
@@ -95,8 +96,8 @@ public class AuthController {
 //    }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody JwtRequest authRequest) {
-        if (userService.create(authRequest.getUsername(), authRequest.getPassword())) {
+    public ResponseEntity<?> signup(@RequestBody SignUpCreds signUpCreds) {
+        if (userService.create(signUpCreds)) {
             return new ResponseEntity<>(HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
