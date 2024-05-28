@@ -3,6 +3,7 @@ package com.example.auth.service;
 import com.example.auth.domain.Role;
 import com.example.auth.domain.UserAuth;
 import com.example.auth.domain.UserStatus;
+import com.example.auth.exception.AuthException;
 import com.example.auth.pojo.SignUpCreds;
 import com.example.auth.repository.UserRepository;
 import jakarta.validation.Valid;

@@ -1,5 +1,6 @@
 package com.example.auth.controller;
 
+import com.example.auth.exception.ErrorMessage;
 import com.example.auth.jwt.JwtRequest;
 import com.example.auth.jwt.JwtResponse;
 import com.example.auth.pojo.RefreshToken;
@@ -98,9 +99,18 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignUpCreds signUpCreds) {
         if (userService.create(signUpCreds)) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            JwtRequest signInCreds = new JwtRequest();
+            signInCreds.setUsername(signUpCreds.getUsername());
+            signInCreds.setPassword(signUpCreds.getPassword());
+            final JwtResponse token = authService.login(signInCreds);
+            ResponseCookie cookie = refreshCookie(token.censor(cookieHttpOnly));
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(authService.jsonify(token));
         } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(new ErrorMessage(
+                    HttpStatus.BAD_REQUEST.value(),
+                    HttpStatus.BAD_REQUEST.name(),
+                    "User with username='" + signUpCreds.getUsername() +"' already exists"
+            ));
         }
     }
 
